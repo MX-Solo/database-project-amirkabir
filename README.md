@@ -1,16 +1,16 @@
 
-# سیستم پیشنهاد فیلم با MongoDB و Docker
+# Movie Recommendation System with MongoDB and Docker
 
-این پروژه یک سیستم پیشنهاد فیلم است که از MongoDB برای مدیریت داده‌های فیلم استفاده می‌کند و با Docker اجرا می‌شود.
+This project is a movie recommendation system that uses MongoDB to manage movie data and runs using Docker.
 
-## ویژگی‌ها
+## Features
 
-- **مدیریت داده‌های سلسله‌مراتبی**: استفاده از مدل سند MongoDB  
-- **پردازش آرایه‌ها**: ژانر، کارگردان و بازیگر به صورت بومی  
-- **کوئری‌های پیچیده**: منطق پیشنهاد در کوئری‌های واحد  
-- **عملکرد سریع**: خواندن داده‌های تو در تو  
+- **Hierarchical data modeling**: Uses MongoDB’s document model  
+- **Array processing**: Native handling of genres, directors, and cast  
+- **Complex queries**: Recommendation logic written in single queries  
+- **High performance**: Efficient reading of nested documents  
 
-## ساختار پروژه
+## Project Structure
 
 ```
 
@@ -27,86 +27,86 @@
 
 ````
 
-## نصب و اجرا
+## Installation & Running
 
-### 1. اجرا با Docker Compose
+### 1. Run with Docker Compose
 
 ```bash
-# ساخت و اجرای کانتینرها
+# Build and run the containers
 docker-compose up --build
 
-# اجرا در پس‌زمینه
+# Run in background
 docker-compose up -d --build
 ````
 
-### 2. بارگذاری داده‌ها (خودکار)
+### 2. Load Data (Automatically)
 
-سیستم به طور خودکار داده‌ها را بارگذاری می‌کند. برای بارگذاری دستی:
+The system loads movie data automatically. For manual loading:
 
 ```bash
-# بارگذاری دستی داده‌ها
+# Manually load movie data
 docker-compose exec app npm run init-data
 ```
 
-### 3. اجرای کوئری‌ها
+### 3. Run Sample Queries
 
 ```bash
-# اجرای کوئری‌های نمونه
+# Execute sample queries
 docker-compose exec app npm run queries
 ```
 
-## کوئری‌های اصلی
+## Core Queries
 
-1. **توزیع ژانر**: شمارش فیلم‌ها بر اساس ژانر، به ترتیب از بیشترین به کمترین
-2. **کارگردان‌های برتر**: یافتن کارگردان‌های دارای بیش از ۳ فیلم و نمایش میانگین امتیاز
-3. **ارتباطات بازیگر**: یافتن فیلم‌هایی که حداقل ۲ بازیگر مشترک با فیلم "Speech" دارند
+1. **Genre Distribution**: Count of movies per genre, sorted from most to least
+2. **Top Directors**: Find directors with more than 3 movies and show their average rating
+3. **Actor Connections**: Find movies that share at least 2 actors with the movie "Speech"
 
 ## API Endpoints
 
-### مدیریت کاربر
+### User Management
 
-* `POST /api/users/register` - ثبت‌نام کاربر جدید
-* `POST /api/users/login` - ورود کاربر
-* `POST /api/users/:userId/watched-movies` - افزودن فیلم به دیده‌شده‌ها
-* `DELETE /api/users/:userId/watched-movies` - حذف فیلم از دیده‌شده‌ها
-* `GET /api/users/:userId/watched-movies` - دریافت فیلم‌های دیده‌شده
+* `POST /api/users/register` – Register a new user
+* `POST /api/users/login` – User login
+* `POST /api/users/:userId/watched-movies` – Add a movie to watched list
+* `DELETE /api/users/:userId/watched-movies` – Remove a movie from watched list
+* `GET /api/users/:userId/watched-movies` – Get user's watched movies
 
-### موتور پیشنهاد
+### Recommendation Engine
 
-* `GET /api/users/:userId/recommendations` - دریافت پیشنهادات شخصی‌سازی‌شده
-* `GET /api/movies/search?query=...` - جستجوی فیلم‌ها
+* `GET /api/users/:userId/recommendations` – Get personalized recommendations
+* `GET /api/movies/search?query=...` – Search for movies
 
-### کوئری‌های مدیریتی
+### Management Queries
 
-* `GET /api/management/director-specialization` - تخصص کارگردان-ژانر
-* `GET /api/management/actor-collaboration` - شبکه همکاری بازیگر
-* `GET /api/management/genre-timeline` - جدول زمانی محبوبیت ژانر
-* `GET /api/management/actor-director` - همکاری بازیگر-کارگردان
+* `GET /api/management/director-specialization` – Director-to-genre specialization
+* `GET /api/management/actor-collaboration` – Actor collaboration network
+* `GET /api/management/genre-timeline` – Genre popularity timeline
+* `GET /api/management/actor-director` – Actor-director collaborations
 
-### APIهای عمومی
+### Public APIs
 
-* `GET /` - اطلاعات API
-* `GET /api/movies` - دریافت همه فیلم‌ها
-* `GET /api/movies/genre/:genre` - فیلم‌ها بر اساس ژانر
-* `GET /api/movies/director/:director` - فیلم‌ها بر اساس کارگردان
-* `GET /api/movies/actor/:actor` - فیلم‌ها بر اساس بازیگر
-* `GET /api/stats/genres` - آمار ژانرها
-* `GET /api/stats/directors` - آمار کارگردان‌ها
-* `GET /api/recommendations/:movieId` - پیشنهادات فیلم
+* `GET /` – API info
+* `GET /api/movies` – Get all movies
+* `GET /api/movies/genre/:genre` – Get movies by genre
+* `GET /api/movies/director/:director` – Get movies by director
+* `GET /api/movies/actor/:actor` – Get movies by actor
+* `GET /api/stats/genres` – Genre statistics
+* `GET /api/stats/directors` – Director statistics
+* `GET /api/recommendations/:movieId` – Get recommendations for a specific movie
 
-## دسترسی به MongoDB
+## Accessing MongoDB
 
 ```bash
-# اتصال به MongoDB
+# Connect to MongoDB inside the container
 docker-compose exec mongodb mongosh -u admin -p password123
 
-# یا از طریق mongosh
+# Or from the host machine
 mongosh "mongodb://admin:password123@localhost:27017/movieDB?authSource=admin"
 ```
 
-## نمونه داده
+## Sample Data
 
-### نمونه فیلم
+### Sample Movie Document
 
 ```json
 {
@@ -129,7 +129,9 @@ mongosh "mongodb://admin:password123@localhost:27017/movieDB?authSource=admin"
 }
 ```
 
-### نمونه کاربر
+### Sample User Document
+
+A sample user with username `ali` and password `password123`:
 
 ```json
 {
@@ -146,29 +148,29 @@ mongosh "mongodb://admin:password123@localhost:27017/movieDB?authSource=admin"
 }
 ```
 
-## مدیریت کانتینرها
+## Container Management
 
 ```bash
-# توقف سرویس‌ها
+# Stop services
 docker-compose down
 
-# حذف کامل (شامل داده‌ها)
+# Remove everything including volumes
 docker-compose down -v
 
-# مشاهده لاگ‌ها
+# View logs
 docker-compose logs -f
 
-# مشاهده لاگ‌های سرویس خاص
+# View logs for specific service
 docker-compose logs -f app
 docker-compose logs -f mongodb
 ```
 
-## پورت‌های استفاده‌شده
+## Ports
 
-* **3000**: اپلیکیشن Node.js
+* **3000**: Node.js Application
 * **27017**: MongoDB
 
-## متغیرهای محیطی
+## Environment Variables
 
 ```env
 MONGODB_URI=mongodb://admin:password123@mongodb:27017/movieDB?authSource=admin
@@ -179,5 +181,5 @@ PORT=3000
 
 ---
 
-✅ اگر اروری که می‌گیری خاص یا مربوط به بخش خاصی از فایل هست (مثلاً خط خاصی یا با `docker-compose` یا markdown parser)، لطفاً اون خطا رو هم برام بفرست تا دقیق‌تر بررسی کنم.
+Let me know if you want the README in a `.md` file or if there are other parts of the project you want improved!
 ```
