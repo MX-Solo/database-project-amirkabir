@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم پیشنهاد فیلم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .search-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .search-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input, .input-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .movie-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .movie-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .movie-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .genres, .cast, .directors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .rating {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .stats-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 سیستم پیشنهاد فیلم</h1>
+            <p>جستجو و کشف فیلم‌های جدید با MongoDB</p>
+            <div style="margin-top: 20px;">
+                <a href="/dashboard" style="color: white; text-decoration: none; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 8px; display: inline-block; margin: 0 10px;">
+                    📊 داشبورد کاربری
+                </a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="search-section">
+                <h2>🔍 جستجوی فیلم</h2>
+                <div class="search-inputs">
+                    <div class="input-group">
+                        <label for="genre">ژانر:</label>
+                        <select id="genre">
+                            <option value="">همه ژانرها</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="director">کارگردان:</label>
+                        <input type="text" id="director" placeholder="نام کارگردان را وارد کنید">
+                    </div>
+                    <div class="input-group">
+                        <label for="actor">بازیگر:</label>
+                        <input type="text" id="actor" placeholder="نام بازیگر را وارد کنید">
+                    </div>
+                    <div class="input-group">
+                        <label for="limit">تعداد نتایج:</label>
+                        <select id="limit">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="searchMovies()">جستجو</button>
+            </div>
+
+            <div class="results" id="results">
+                <div class="loading">برای شروع جستجو، روی دکمه جستجو کلیک کنید</div>
+            </div>
+
+            <div class="stats-section">
+                <h2>📊 آمار و اطلاعات</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">توزیع ژانرها</div>
+                        <div id="genreStats">در حال بارگذاری...</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">کارگردان‌های برتر</div>
+                        <div id="directorStats">در حال بارگذاری...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+
+        // Load initial data
+        window.onload = function() {
+            loadGenreStats();
+            loadDirectorStats();
+        };
+
+        async function searchMovies() {
+            const genre = document.getElementById('genre').value;
+            const director = document.getElementById('director').value;
+            const actor = document.getElementById('actor').value;
+            const limit = document.getElementById('limit').value;
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">در حال جستجو...</div>';
+
+            try {
+                let url = `${API_BASE}/movies?limit=${limit}`;
+                if (genre) url += `&genre=${encodeURIComponent(genre)}`;
+                if (director) url += `&director=${encodeURIComponent(director)}`;
+                if (actor) url += `&actor=${encodeURIComponent(actor)}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                displayMovies(data.movies);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">خطا در جستجو: ${error.message}</div>`;
+            }
+        }
+
+        function displayMovies(movies) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (movies.length === 0) {
+                resultsDiv.innerHTML = '<div class="loading">هیچ فیلمی یافت نشد</div>';
+                return;
+            }
+
+            const moviesHtml = movies.map(movie => `
+                <div class="movie-card">
+                    <div class="movie-title">${movie.title}</div>
+                    <div class="movie-info">
+                        <div class="info-item">
+                            <span class="info-label">سال:</span>
+                            <span>${movie.release_year || 'نامشخص'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">امتیاز:</span>
+                            <span class="rating">${movie.rating || 'نامشخص'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">رای:</span>
+                            <span>${movie.votes ? movie.votes.toLocaleString() : 'نامشخص'}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">ژانرها:</span>
+                        <div class="genres">
+                            ${(movie.genres || []).map(genre => `<span class="tag">${genre}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">کارگردان‌ها:</span>
+                        <div class="directors">
+                            ${(movie.directors || []).map(director => `<span class="tag">${director}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">بازیگران:</span>
+                        <div class="cast">
+                            ${(movie.cast || []).slice(0, 5).map(actor => `<span class="tag">${actor}</span>`).join('')}
+                            ${(movie.cast || []).length > 5 ? `<span class="tag">+${movie.cast.length - 5} بیشتر</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsDiv.innerHTML = moviesHtml;
+        }
+
+        async function loadGenreStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats/genres`);
+                const data = await response.json();
+                
+                const statsHtml = data.genreDistribution.slice(0, 10).map(genre => 
+                    `<div style="margin-bottom: 10px;">
+                        <strong>${genre._id}:</strong> ${genre.count} فیلم
+                    </div>`
+                ).join('');
+                
+                document.getElementById('genreStats').innerHTML = statsHtml;
+            } catch (error) {
+                document.getElementById('genreStats').innerHTML = 'خطا در بارگذاری آمار';
+            }
+        }
+
+        async function loadDirectorStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats/directors`);
+                const data = await response.json();
+                
+                const statsHtml = data.topDirectors.slice(0, 5).map(director => 
+                    `<div style="margin-bottom: 10px;">
+                        <strong>${director._id}:</strong> ${director.movieCount} فیلم، 
+                        میانگین امتیاز: ${director.avgRating.toFixed(2)}
+                    </div>`
+                ).join('');
+                
+                document.getElementById('directorStats').innerHTML = statsHtml;
+            } catch (error) {
+                document.getElementById('directorStats').innerHTML = 'خطا در بارگذاری آمار';
+            }
+        }
+    </script>
+</body>
+</html>

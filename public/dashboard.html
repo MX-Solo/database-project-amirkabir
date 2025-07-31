@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد سیستم پیشنهاد فیلم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .auth-form h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .auth-form input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 5px;
+            width: 200px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .user-info {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .movie-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .movie-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .movie-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .movie-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-recommendation {
+            background: #ffc107 !important;
+            color: #000 !important;
+            font-weight: bold;
+            border: 2px solid #ffc107;
+            transition: all 0.3s ease;
+        }
+
+        .btn-recommendation:hover {
+            background: #ffca2c !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 سیستم پیشنهاد فیلم - داشبورد</h1>
+            
+            <!-- Authentication Section -->
+            <div class="auth-section">
+                <div class="auth-form">
+                    <h3>ورود</h3>
+                    <input type="text" id="loginUsername" placeholder="نام کاربری">
+                    <input type="password" id="loginPassword" placeholder="رمز عبور">
+                    <button class="btn" onclick="login()">ورود</button>
+                </div>
+                
+                <div class="auth-form">
+                    <h3>ثبت نام</h3>
+                    <input type="text" id="registerUsername" placeholder="نام کاربری">
+                    <input type="password" id="registerPassword" placeholder="رمز عبور">
+                    <button class="btn" onclick="register()">ثبت نام</button>
+                </div>
+            </div>
+
+            <div id="userInfo" class="user-info hidden">
+                <h3>خوش آمدید، <span id="currentUser"></span>!</h3>
+                <button class="btn" onclick="logout()">خروج</button>
+            </div>
+        </div>
+
+        <div id="mainContent" class="hidden">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('search')">جستجو</button>
+                <button class="tab" onclick="showTab('watched')">دیده شده‌ها</button>
+                <button class="tab" onclick="showTab('recommendations')">پیشنهادات</button>
+                <button class="tab" onclick="showTab('stats')">آمار</button>
+            </div>
+
+            <!-- Search Tab -->
+            <div id="searchTab" class="tab-content active">
+                <div class="section">
+                    <h2>🔍 جستجوی فیلم</h2>
+                    <input type="text" class="search-box" id="searchInput" placeholder="نام فیلم را وارد کنید..." oninput="searchMovies()">
+                    <div id="searchResults" class="movie-grid"></div>
+                </div>
+            </div>
+
+            <!-- Watched Movies Tab -->
+            <div id="watchedTab" class="tab-content">
+                <div class="section">
+                    <h2>📺 فیلم‌های دیده شده</h2>
+                    <div id="watchedMovies" class="movie-grid"></div>
+                </div>
+            </div>
+
+            <!-- Recommendations Tab -->
+            <div id="recommendationsTab" class="tab-content">
+                <div class="section">
+                    <h2>🎯 پیشنهادات شخصی</h2>
+                    <div id="recommendations" class="movie-grid"></div>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="statsTab" class="tab-content">
+                <div class="section">
+                    <h2>📊 آمار و اطلاعات</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalMovies">-</div>
+                            <div class="stat-label">کل فیلم‌ها</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="watchedCount">-</div>
+                            <div class="stat-label">دیده شده‌ها</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgRating">-</div>
+                            <div class="stat-label">میانگین امتیاز</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="topGenre">-</div>
+                            <div class="stat-label">ژانر محبوب</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let currentUser = null;
+        let currentUserId = null;
+
+        // Authentication functions
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('ثبت نام موفقیت‌آمیز بود!');
+                    document.getElementById('registerUsername').value = '';
+                    document.getElementById('registerPassword').value = '';
+                } else {
+                    alert('خطا: ' + data.error);
+                }
+            } catch (error) {
+                alert('خطا در ثبت نام: ' + error.message);
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    currentUser = data.user;
+                    currentUserId = data.user._id;
+                    showUserInterface();
+                    loadUserData();
+                } else {
+                    alert('خطا: ' + data.error);
+                }
+            } catch (error) {
+                alert('خطا در ورود: ' + error.message);
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            currentUserId = null;
+            hideUserInterface();
+        }
+
+        function showUserInterface() {
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('currentUser').textContent = currentUser.username;
+        }
+
+        function hideUserInterface() {
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+        }
+
+        // Tab functions
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Load tab data
+            if (tabName === 'watched') {
+                loadWatchedMovies();
+            } else if (tabName === 'recommendations') {
+                loadRecommendations();
+            } else if (tabName === 'stats') {
+                loadStats();
+            }
+        }
+
+        // Search function
+        async function searchMovies() {
+            const query = document.getElementById('searchInput').value;
+            if (query.length < 2) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/movies/search?query=${encodeURIComponent(query)}&limit=20`);
+                const data = await response.json();
+                displayMovies(data.movies, 'searchResults');
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+
+        // Load user data
+        async function loadUserData() {
+            await loadWatchedMovies();
+            await loadRecommendations();
+            await loadStats();
+        }
+
+        // Load watched movies
+        async function loadWatchedMovies() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUserId}/watched-movies`);
+                const data = await response.json();
+                displayMovies(data.watchedMovies, 'watchedMovies');
+            } catch (error) {
+                console.error('Error loading watched movies:', error);
+            }
+        }
+
+        // Load recommendations
+        async function loadRecommendations() {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUserId}/recommendations?limit=20`);
+                const data = await response.json();
+                displayMovies(data.recommendations, 'recommendations');
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const [moviesResponse, genresResponse] = await Promise.all([
+                    fetch(`${API_BASE}/movies?limit=1`),
+                    fetch(`${API_BASE}/stats/genres`)
+                ]);
+
+                const moviesData = await moviesResponse.json();
+                const genresData = await genresResponse.json();
+
+                document.getElementById('totalMovies').textContent = moviesData.pagination.total;
+                
+                if (currentUserId) {
+                    const watchedResponse = await fetch(`${API_BASE}/users/${currentUserId}/watched-movies`);
+                    const watchedData = await watchedResponse.json();
+                    document.getElementById('watchedCount').textContent = watchedData.watchedMovies.length;
+                }
+
+                if (genresData.genreDistribution.length > 0) {
+                    document.getElementById('topGenre').textContent = genresData.genreDistribution[0]._id;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Display movies
+        function displayMovies(movies, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!movies || movies.length === 0) {
+                container.innerHTML = '<div class="loading">هیچ فیلمی یافت نشد</div>';
+                return;
+            }
+
+            const moviesHtml = movies.map(movie => `
+                <div class="movie-card">
+                    <div class="movie-title">${movie.title}</div>
+                    <div class="movie-info">
+                        <div>سال: ${movie.release_year || 'نامشخص'}</div>
+                        <div>امتیاز: ${movie.rating || 'نامشخص'}</div>
+                        <div>ژانرها: ${(movie.genres || []).join(', ')}</div>
+                        ${containerId === 'recommendations' ? `<div style="color: #ffc107; font-weight: bold;">🎯 امتیاز پیشنهاد: ${movie.totalScore ? movie.totalScore.toFixed(2) : 'نامشخص'}</div>` : ''}
+                    </div>
+                    <div class="movie-actions">
+                        ${containerId === 'searchResults' ? 
+                            `<button class="btn btn-small btn-success" onclick="addToWatched('${movie._id}')">افزودن به دیده شده‌ها</button>` :
+                            containerId === 'recommendations' ?
+                            `<button class="btn btn-small btn-recommendation" onclick="addToWatched('${movie._id}')">🎯 این فیلم پیشنهادی را افزودن به دیده شده‌ها</button>` :
+                            `<button class="btn btn-small btn-danger" onclick="removeFromWatched('${movie._id}')">حذف از دیده شده‌ها</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = moviesHtml;
+        }
+
+        // Add to watched
+        async function addToWatched(movieId) {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUserId}/watched-movies`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ movieId })
+                });
+
+                if (response.ok) {
+                    alert('فیلم به دیده شده‌ها اضافه شد');
+                    loadUserData();
+                } else {
+                    alert('خطا در افزودن فیلم');
+                }
+            } catch (error) {
+                alert('خطا: ' + error.message);
+            }
+        }
+
+        // Remove from watched
+        async function removeFromWatched(movieId) {
+            if (!currentUserId) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUserId}/watched-movies`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ movieId })
+                });
+
+                if (response.ok) {
+                    alert('فیلم از دیده شده‌ها حذف شد');
+                    loadUserData();
+                } else {
+                    alert('خطا در حذف فیلم');
+                }
+            } catch (error) {
+                alert('خطا: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

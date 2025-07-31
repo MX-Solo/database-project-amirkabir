@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: movie-mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: movieDB
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - movie-network
+
+  app:
+    build: .
+    container_name: movie-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/movieDB?authSource=admin
+      NODE_ENV: production
+    depends_on:
+      - mongodb
+    volumes:
+      - ./movies.json:/app/movies.json:ro
+      - ./analyze-and-load.js:/app/analyze-and-load.js:ro
+    command: sh -c "sleep 15 && npm run setup"
+    networks:
+      - movie-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  movie-network:
+    driver: bridge
